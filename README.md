@@ -1,33 +1,133 @@
-# RoadGameRefactor
+# Road Game
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+A 2D road survival game built with [libGDX](https://libgdx.com/), featuring car controls, shooting mechanics, power-ups, and difficulty settings.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+## Overview
 
-## Platforms
+Road Game is an endless runner-style game where you control a car on a road. Navigate obstacles, collect fuel to restore health, grab power-ups for invincibility, and shoot bullets to destroy obstacles. The game speed increases over time, making survival increasingly challenging.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+## Features
 
-## Gradle
+### Gameplay
+- **Car Controls**: Move left/right using arrow keys
+- **Shooting**: Press SPACE to shoot bullets that destroy obstacles
+- **Health System**: Start with 100 HP; collisions reduce health by 20
+- **Fuel Collection**: Collect fuel items to restore 10 HP (max 100)
+- **Power-ups**: Temporary invincibility (3 seconds) to pass through obstacles safely
+- **Dynamic Difficulty**: Game speed increases permanently after each crash
+- **Scoring**: Earn points by collecting fuel (+5) and destroying obstacles with bullets (+10)
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+### Game Screens
+- **Intro Screen**: Animated introduction sequence
+- **Main Menu**: Navigate to Play, Settings, or Quit
+- **Settings Screen**: Customize game preferences
+- **Game Screen**: Main gameplay with health bar, score, and speed indicator
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+### Settings
+- **Difficulty Levels**: Easy, Normal, Hard (affects speed multiplier and obstacle spawn rate)
+- **Sound Volume**: Adjust sound effect volume (0.0 - 1.0)
+- **Music Volume**: Adjust background music volume (0.0 - 1.0)
+- **Fullscreen Mode**: Toggle between windowed and fullscreen
+- **FPS Display**: Show/hide frames per second counter
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+### Technical Features
+- Persistent settings storage using Preferences API
+- Background music with looping support
+- Sound effects for various game events
+- Scrolling background animation
+- Resource management with AssetManager
+
+## Project Structure
+
+- `core/`: Main module with shared game logic
+  - `si/um/feri/temelko/`: Main game package
+    - `RoadGame.java`: Main game class and asset management
+    - `GameScreen.java`: Core gameplay implementation
+    - `MenuScreen.java`: Main menu UI
+    - `IntroScreen.java`: Introduction animation
+    - `SettingsScreen.java`: Settings configuration UI
+    - `GameSettings.java`: Settings management and persistence
+- `lwjgl3/`: Desktop launcher for Windows/Linux/Mac
+- `assets/`: Game resources (images, sounds, UI skins)
+
+## Requirements
+
+- **Java**: Version 17 or higher
+- **Gradle**: Included wrapper (gradlew/gradlew.bat)
+- **libGDX**: Managed via Gradle dependencies
+
+## Building and Running
+
+### Using Gradle Wrapper
+
+**Build the project:**
+```bash
+# Windows
+gradlew.bat build
+
+# Linux/Mac
+./gradlew build
+```
+
+**Run the game:**
+```bash
+# Windows
+gradlew.bat lwjgl3:run
+
+# Linux/Mac
+./gradlew lwjgl3:run
+```
+
+**Create a runnable JAR:**
+```bash
+# Windows
+gradlew.bat lwjgl3:jar
+
+# Linux/Mac
+./gradlew lwjgl3:jar
+```
+
+The JAR file will be created at `lwjgl3/build/libs/`.
+
+### Useful Gradle Tasks
+
+- `--continue`: Continue building even if errors occur
+- `--daemon`: Use Gradle daemon for faster builds
+- `--offline`: Use cached dependencies only
+- `--refresh-dependencies`: Force refresh of all dependencies
+- `clean`: Remove build folders
+- `test`: Run unit tests (if any)
+
+## Controls
+
+### In-Game
+- **Left Arrow** / **A**: Move car left
+- **Right Arrow** / **D**: Move car right
+- **Space**: Shoot bullet
+- **ESC**: Return to main menu
+- **R**: Restart game (when game over)
+
+### Menu Navigation
+- Mouse click on buttons
+- Keyboard navigation (if supported)
+
+## Assets
+
+Game assets are located in the `assets/` directory:
+- `images/`: Sprites (car, obstacles, fuel, power-ups, bullets, background)
+- `sounds/`: Sound effects and background music
+- `skins/`: UI skin files for Scene2D
+
+## Development
+
+This project was generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff) template.
+
+### Project Configuration
+
+- **Source Compatibility**: Java 17
+- **Desktop Platform**: LWJGL3
+- **Window Size**: Default 1024x768 (configurable in settings)
+
+## License
+
+This project is part of the Computer Game Development course (Task 4).
