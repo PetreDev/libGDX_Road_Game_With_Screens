@@ -1,12 +1,15 @@
 package si.um.feri.temelko;
 
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
 
 /**
  * Manages game settings and persists them using Preferences.
  */
 public class GameSettings {
     private static final String PREFS_NAME = "road_game_settings";
+    private static final int MAX_LEADERBOARD_ENTRIES = 10;
 
     // Setting keys
     private static final String KEY_SOUND_VOLUME = "sound_volume";
@@ -14,6 +17,8 @@ public class GameSettings {
     private static final String KEY_DIFFICULTY = "difficulty";
     private static final String KEY_FULLSCREEN = "fullscreen";
     private static final String KEY_SHOW_FPS = "show_fps";
+    private static final String KEY_LEADERBOARD = "leaderboard";
+    private static final String KEY_PLAYER_NAME = "player_name";
     
     // Default values
     private static final float DEFAULT_SOUND_VOLUME = 0.7f;
@@ -21,6 +26,7 @@ public class GameSettings {
     private static final int DEFAULT_DIFFICULTY = 1; // 0=Easy, 1=Normal, 2=Hard
     private static final boolean DEFAULT_FULLSCREEN = false;
     private static final boolean DEFAULT_SHOW_FPS = false;
+    private static final String DEFAULT_PLAYER_NAME = "Player";
 
     private final Preferences prefs;
 
@@ -71,6 +77,7 @@ public class GameSettings {
         prefs.putInteger(KEY_DIFFICULTY, DEFAULT_DIFFICULTY);
         prefs.putBoolean(KEY_FULLSCREEN, DEFAULT_FULLSCREEN);
         prefs.putBoolean(KEY_SHOW_FPS, DEFAULT_SHOW_FPS);
+        prefs.putString(KEY_PLAYER_NAME, DEFAULT_PLAYER_NAME);
         prefs.flush();
     }
 
@@ -125,6 +132,118 @@ public class GameSettings {
     }
 
     public void save() {
+        prefs.flush();
+    }
+
+    // --- Player Name ---
+    public String getPlayerName() {
+        return prefs.getString(KEY_PLAYER_NAME, DEFAULT_PLAYER_NAME);
+    }
+
+    public void setPlayerName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            name = DEFAULT_PLAYER_NAME;
+        }
+        prefs.putString(KEY_PLAYER_NAME, name.trim());
+        prefs.flush();
+    }
+
+    // --- Leaderboard ---
+
+    /**
+     * Represents a single leaderboard entry with player name and score.
+     */
+    public static class LeaderboardEntry {
+        public String name;
+        public int score;
+        public String difficulty;
+
+        /** Required for JSON deserialization via reflection. */
+        @SuppressWarnings("unused")
+        private LeaderboardEntry() {}
+
+        public LeaderboardEntry(String name, int score, String difficulty) {
+            this.name = name;
+            this.score = score;
+            this.difficulty = difficulty;
+        }
+    }
+
+    /**
+     * Get all leaderboard entries, sorted by score descending.
+     */
+    public Array<LeaderboardEntry> getLeaderboard() {
+        String json = prefs.getString(KEY_LEADERBOARD, "[]");
+        Json jsonParser = new Json();
+        try {
+            @SuppressWarnings("unchecked")
+            Array<LeaderboardEntry> entries = jsonParser.fromJson(Array.class, LeaderboardEntry.class, json);
+            if (entries == null) {
+                return new Array<>();
+            }
+            return entries;
+        } catch (Exception e) {
+            return new Array<>();
+        }
+    }
+
+    /**
+     * Add a new score to the leaderboard.
+     * Each player name only appears once - only their best score is kept.
+     */
+    public void addScore(String playerName, int score) {
+        if (playerName == null || playerName.trim().isEmpty()) {
+            playerName = DEFAULT_PLAYER_NAME;
+        }
+        playerName = playerName.trim();
+
+        Array<LeaderboardEntry> entries = getLeaderboard();
+
+        // Check if player already exists in leaderboard
+        LeaderboardEntry existingEntry = null;
+        for (LeaderboardEntry entry : entries) {
+            if (entry.name != null && entry.name.equalsIgnoreCase(playerName)) {
+                existingEntry = entry;
+                break;
+            }
+        }
+
+        if (existingEntry != null) {
+            // Player exists - only update if new score is higher
+            if (score > existingEntry.score) {
+                existingEntry.score = score;
+                existingEntry.difficulty = getDifficulty().toString();
+            }
+        } else {
+            // New player - add entry
+            LeaderboardEntry newEntry = new LeaderboardEntry(
+                playerName,
+                score,
+                getDifficulty().toString()
+            );
+            entries.add(newEntry);
+        }
+
+        // Sort by score descending
+        entries.sort((a, b) -> Integer.compare(b.score, a.score));
+
+        // Keep only top entries
+        while (entries.size > MAX_LEADERBOARD_ENTRIES) {
+            entries.removeIndex(entries.size - 1);
+        }
+
+        // Save to preferences
+        Json jsonParser = new Json();
+        String json = jsonParser.toJson(entries, Array.class, LeaderboardEntry.class);
+        prefs.putString(KEY_LEADERBOARD, json);
+        prefs.flush();
+    }
+
+    /**
+     * Clear all leaderboard entries.
+     */
+    public void clearLeaderboard() {
+        prefs.putString(KEY_LEADERBOARD, "[]");
         prefs.flush();
     }
 }

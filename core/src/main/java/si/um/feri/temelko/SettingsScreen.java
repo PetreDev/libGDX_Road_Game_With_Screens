@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -32,6 +33,7 @@ public class SettingsScreen extends ScreenAdapter {
     private Skin skin;
     private Texture background;
 
+    private TextField playerNameField;
     private Slider soundVolumeSlider;
     private Label soundVolumeLabel;
     private Slider musicVolumeSlider;
@@ -103,10 +105,21 @@ public class SettingsScreen extends ScreenAdapter {
         Table settingsTable = new Table();
         settingsTable.defaults().pad(10).left();
 
+        // Player Name
+        Label nameLabel = new Label("Player Name:", skin);
+        nameLabel.setFontScale(1.1f);
+        settingsTable.add(nameLabel).width(250);
+
+        playerNameField = new TextField(settings.getPlayerName(), skin);
+        playerNameField.setMaxLength(15);
+        playerNameField.setTextFieldListener((textField, c) -> settings.setPlayerName(textField.getText()));
+        settingsTable.add(playerNameField).width(280).padLeft(15).fillX();
+        settingsTable.row();
+
         // Sound Volume
         Label soundLabel = new Label("Sound Volume:", skin);
         soundLabel.setFontScale(1.1f);
-        settingsTable.add(soundLabel).width(180);
+        settingsTable.add(soundLabel).width(250);
 
         soundVolumeSlider = new Slider(0f, 1f, 0.01f, false, skin);
         soundVolumeSlider.setValue(settings.getSoundVolume());
@@ -128,7 +141,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Music Volume
         Label musicLabel = new Label("Music Volume:", skin);
         musicLabel.setFontScale(1.1f);
-        settingsTable.add(musicLabel).width(180);
+        settingsTable.add(musicLabel).width(250);
 
         musicVolumeSlider = new Slider(0f, 1f, 0.01f, false, skin);
         musicVolumeSlider.setValue(settings.getMusicVolume());
@@ -151,7 +164,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Difficulty
         Label difficultyLabel = new Label("Difficulty:", skin);
         difficultyLabel.setFontScale(1.1f);
-        settingsTable.add(difficultyLabel).width(180);
+        settingsTable.add(difficultyLabel).width(250);
 
         difficultySelectBox = new SelectBox<>(skin);
         Array<GameSettings.Difficulty> difficulties = new Array<>(GameSettings.Difficulty.values());
@@ -169,7 +182,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Fullscreen
         Label fullscreenLabel = new Label("Fullscreen:", skin);
         fullscreenLabel.setFontScale(1.1f);
-        settingsTable.add(fullscreenLabel).width(180);
+        settingsTable.add(fullscreenLabel).width(250);
 
         fullscreenCheckBox = new CheckBox("", skin);
         fullscreenCheckBox.setChecked(settings.isFullscreen());
@@ -192,7 +205,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Show FPS
         Label fpsLabel = new Label("Show FPS:", skin);
         fpsLabel.setFontScale(1.1f);
-        settingsTable.add(fpsLabel).width(180);
+        settingsTable.add(fpsLabel).width(250);
 
         showFpsCheckBox = new CheckBox("", skin);
         showFpsCheckBox.setChecked(settings.isShowFps());
@@ -208,7 +221,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Controls Info
         Label controlsTitle = new Label("Controls:", skin);
         controlsTitle.setFontScale(1.2f);
-        settingsTable.add(controlsTitle).colspan(3).padTop(15).row();
+        settingsTable.add(controlsTitle).colspan(3).center().padTop(15).row();
 
         Label controlsLabel = new Label(
             """
@@ -218,7 +231,7 @@ public class SettingsScreen extends ScreenAdapter {
                 R - Restart (after game over)""",
             skin);
         controlsLabel.setFontScale(0.9f);
-        settingsTable.add(controlsLabel).colspan(3).padTop(8).left().row();
+        settingsTable.add(controlsLabel).colspan(3).padTop(8).center().row();
 
         // Buttons
         TextButton backButton = new TextButton("Back to Menu", skin);
@@ -236,6 +249,7 @@ public class SettingsScreen extends ScreenAdapter {
             public void clicked(InputEvent event, float x, float y) {
                 settings.resetToDefaults();
                 // Update UI to reflect defaults
+                playerNameField.setText(settings.getPlayerName());
                 soundVolumeSlider.setValue(settings.getSoundVolume());
                 updateSoundVolumeLabel(settings.getSoundVolume());
                 musicVolumeSlider.setValue(settings.getMusicVolume());
@@ -267,10 +281,10 @@ public class SettingsScreen extends ScreenAdapter {
 
         // Create scrollable content
         Table scrollContent = new Table();
-        scrollContent.defaults().pad(8);
-        scrollContent.add(titleLabel).padBottom(10).row();
-        scrollContent.add(settingsTable).padBottom(10).row();
-        scrollContent.add(buttonTable).padTop(5);
+        scrollContent.defaults().pad(8).center();
+        scrollContent.add(titleLabel).center().padBottom(10).row();
+        scrollContent.add(settingsTable).center().padBottom(10).row();
+        scrollContent.add(buttonTable).center().padTop(5);
 
         ScrollPane scrollPane = new ScrollPane(scrollContent, skin);
         scrollPane.setFadeScrollBars(false);

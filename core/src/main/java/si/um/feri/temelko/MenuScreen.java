@@ -95,6 +95,14 @@ public class MenuScreen extends ScreenAdapter {
             }
         });
 
+        TextButton leaderboardButton = new TextButton("Leaderboard", skin);
+        leaderboardButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new LeaderboardScreen(game));
+            }
+        });
+
         TextButton quitButton = new TextButton("Quit", skin);
         quitButton.addListener(new ClickListener() {
             @Override
@@ -111,6 +119,7 @@ public class MenuScreen extends ScreenAdapter {
             .padRight(30);
 
         buttonTable.add(playButton).padBottom(15).fillX().row();
+        buttonTable.add(leaderboardButton).padBottom(15).fillX().row();
         buttonTable.add(settingsButton).padBottom(15).fillX().row();
         buttonTable.add(quitButton).fillX();
 

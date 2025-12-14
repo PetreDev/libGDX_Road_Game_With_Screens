@@ -70,6 +70,7 @@ public class GameScreen extends ScreenAdapter {
     private float bulletWidth, bulletHeight;
 
     private boolean isGameOver = false;
+    private boolean scoreSaved = false;
 
     public GameScreen(RoadGame game) {
         this.game = game;
@@ -142,6 +143,7 @@ public class GameScreen extends ScreenAdapter {
         invincibleTimer = 0f;
         gameSpeedMultiplier = 1f;
         isGameOver = false;
+        scoreSaved = false;
 
         // Apply difficulty settings
         GameSettings.Difficulty difficulty = settings.getDifficulty();
@@ -167,11 +169,22 @@ public class GameScreen extends ScreenAdapter {
             update(delta);
             if (currentHealth <= 0) {
                 isGameOver = true;
+                // Save score to leaderboard
+                if (!scoreSaved) {
+                    String playerName = settings.getPlayerName();
+                    settings.addScore(playerName, score);
+                    scoreSaved = true;
+                }
             }
         } else {
             // Restart button
             if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
                 resetGame();
+            }
+            // Leaderboard button
+            if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+                game.setScreen(new LeaderboardScreen(game));
+                return;
             }
         }
 
@@ -208,9 +221,12 @@ public class GameScreen extends ScreenAdapter {
         } else {
             // Game Over Screen
             font.getData().setScale(4f);
-            font.draw(batch, "GAME OVER", Gdx.graphics.getWidth() / 2f - 175, Gdx.graphics.getHeight() / 2f + 50);
+            font.draw(batch, "GAME OVER", Gdx.graphics.getWidth() / 2f - 175, Gdx.graphics.getHeight() / 2f + 100);
+            font.getData().setScale(2.5f);
+            font.draw(batch, "Final Score: " + score, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() / 2f + 20);
             font.getData().setScale(2f);
-            font.draw(batch, "Press R to Restart", Gdx.graphics.getWidth() / 2f - 120, Gdx.graphics.getHeight() / 2f - 50);
+            font.draw(batch, "Press R to Restart", Gdx.graphics.getWidth() / 2f - 120, Gdx.graphics.getHeight() / 2f - 40);
+            font.draw(batch, "Press L for Leaderboard", Gdx.graphics.getWidth() / 2f - 150, Gdx.graphics.getHeight() / 2f - 90);
         }
 
         batch.end();
